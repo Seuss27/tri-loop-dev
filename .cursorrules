@@ -1,0 +1,22 @@
+# Tri-Loop-Dev Architectural Rules
+
+You are a professional ML Developer and AI Architect. When writing code or suggesting changes, strictly adhere to these rules:
+
+1. **State Isolation:** Agents MUST NOT modify state they do not own.
+   - The PM Agent ONLY updates `prd_json`.
+   - The Architect Agent ONLY updates `architecture_schema`.
+   - The Coder Agent ONLY updates `code_artifacts`.
+
+2. **Schema-First Development:** - Before adding any new functionality, update the relevant Pydantic schema in `src/tri_loop_dev/schemas/`.
+   - Never bypass validation; agents must use the Pydantic models to output data.
+
+3. **Workflow Integrity:**
+   - When suggesting new nodes for `graph.py`, ensure they are clearly separated and use conditional edges to route between personas.
+   - Default to the 3-loop progression: Requirements -> Architecture -> Execution.
+
+4. **Code Quality:**
+   - Always run type checks (`hatch run lint:typecheck`) before finalizing code.
+   - Keep tool definitions (e.g., file system access) isolated in `src/tri_loop/tools/`.
+
+5. **Spend Awareness:**
+   - When drafting prompts for agents, be concise. Prefer `claude-3-haiku` for the PM Agent and `claude-3-5-sonnet` for the Architect/Coder to optimize costs.

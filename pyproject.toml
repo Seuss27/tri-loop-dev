@@ -1,0 +1,94 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tri-loop-dev"
+version = "0.1.0"
+description = "Multi-loop AI agent architecture with LangGraph and Pydantic"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "Jared Groves", email = "jgroves27@gmail.com" }
+]
+dependencies = [
+    # Orchestration & Logic
+    "langgraph>=0.0.26",
+    "langchain-core>=0.1.52",
+    "langchain-anthropic>=0.1.11", # Swap or add openai if using GPT-4o
+    
+    # Data Validation
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.2.1",
+    
+    # Utilities
+    "python-dotenv>=1.0.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/Seuss27/tri-loop-dev"
+
+# ---------------------------------------------------------
+# Hatch Environments
+# ---------------------------------------------------------
+
+# Default environment for development and testing
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.6",
+    "pytest-mock>=3.14.0",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest --cov=src/tri_loop tests/"
+
+# Dedicated linting and formatting environment
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+]
+
+[tool.hatch.envs.lint.scripts]
+style = [
+    "ruff check {args:.}",
+    "ruff format --check {args:.}",
+]
+fmt = [
+    "ruff format {args:.}",
+    "ruff check --fix {args:.}",
+]
+typecheck = "mypy src/tri_loop"
+all = [
+    "style",
+    "typecheck",
+]
+
+# ---------------------------------------------------------
+# Tool Configurations
+# ---------------------------------------------------------
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = []
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
