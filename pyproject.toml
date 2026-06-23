@@ -11,18 +11,24 @@ requires-python = ">=3.12"
 authors = [
     { name = "Jared Groves", email = "jgroves27@gmail.com" }
 ]
+# Core dependencies REQUIRED for the app to run
 dependencies = [
-    # Orchestration & Logic
     "langgraph>=0.0.26",
     "langchain-core>=0.1.52",
-    "langchain-anthropic>=0.1.11", # Swap or add openai if using GPT-4o
-    
-    # Data Validation
     "pydantic>=2.7.0",
-    "pydantic-settings>=2.2.1",
-    
-    # Utilities
+    "pydantic-settings>=2.2.1", # Moved to core to prevent startup crashes
     "python-dotenv>=1.0.1",
+]
+
+# Optional provider dependencies
+[project.optional-dependencies]
+anthropic = ["langchain-anthropic>=0.1.11"]
+google = ["langchain-google-genai>=1.0.6"]
+aws = ["langchain-aws>=0.1.6"]
+all = [
+    "langchain-anthropic>=0.1.11",
+    "langchain-google-genai>=1.0.6",
+    "langchain-aws>=0.1.6",
 ]
 
 [project.urls]
@@ -33,6 +39,8 @@ Homepage = "https://github.com/Seuss27/tri-loop-dev"
 # ---------------------------------------------------------
 
 # Default environment for development and testing
+# Automatically install all optional dependencies in the default environment
+features = ["all"]
 [tool.hatch.envs.default]
 dependencies = [
     "pytest>=8.0.0",
