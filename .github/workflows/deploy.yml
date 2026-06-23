@@ -8,6 +8,7 @@ on:
       - 'src/**'
       - 'Dockerfile'
       - 'pyproject.toml'
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
