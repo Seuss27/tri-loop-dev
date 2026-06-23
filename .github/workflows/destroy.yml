@@ -1,0 +1,35 @@
+name: OpenTofu Destroy
+
+# The workflow_dispatch event allows you to manually trigger this pipeline
+# from the "Actions" tab in your GitHub repository.
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # Strictly required for AWS OIDC authentication
+  contents: read
+
+jobs:
+  destroy:
+    name: Teardown Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Ensure this perfectly matches the ARN in your deploy.yml
+          role-to-assume: arn:aws:iam::566995725962:role/github-actions-tri-loop-dev
+          aws-region: us-east-1
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-tofu@v2
+        with:
+          tofu-version: latest
+
+      - name: Destroy Infrastructure
+        run: |
+          cd infrastructure
+          tofu apply -destroy -auto-approve
