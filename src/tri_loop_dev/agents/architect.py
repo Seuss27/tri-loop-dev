@@ -1,32 +1,26 @@
-from langchain_core.messages import AIMessage
-
-from tri_loop_dev.schemas.architect import ArchitectureSchema, ModuleDesign
+from tri_loop_dev.config import settings
+from tri_loop_dev.schemas.architect import ArchitectureSchema
 from tri_loop_dev.state import AgentState
+from tri_loop_dev.utils.llm_factory import get_llm
 
 
 def architect_node(state: AgentState) -> dict:
-    """Mock Architect node to validate routing and schema enforcement."""
-    print("--- RUNNING ARCHITECT NODE (MOCK) ---")
+    """The Architect Agent: Designs the system based on the PRD."""
+    print("--- RUNNING ARCHITECT AGENT ---")
 
-    # Generate a deterministic mock architecture
-    mock_architecture = ArchitectureSchema(
-        modules=[
-            ModuleDesign(
-                name="string_utils",
-                file_path="src/string_utils.py",
-                responsibilities=["Reverse a given string payload"],
-                functions=[],
-                imports=[]
-            )
-        ],
-        entry_point="src/main.py",
-        external_dependencies=[]
-    )
+    # Request the complex reasoning model via the factory
+    llm = get_llm(model=settings.architect_model)
+    structured_llm = llm.with_structured_output(ArchitectureSchema)
 
-    success_msg = "System architecture blueprint generated successfully."
+    # In a full implementation, you would pass the PRD as context here
+    prd_context = state.get("prd_json")
 
-    # Return ONLY the state properties this node is responsible for updating
-    return {
-        "architecture_schema": mock_architecture,
-        "messages": [AIMessage(content=success_msg)]
-    }
+    prompt = f"""
+    You are an expert AI Architect. Design the technical architecture
+    based on this PRD: {prd_context}
+    """
+
+    # Generate the strict architecture schema
+    architecture_output = structured_llm.invoke(prompt)
+
+    return {"architecture_schema": architecture_output}

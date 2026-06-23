@@ -1,7 +1,6 @@
-from langchain_anthropic import ChatAnthropic
-
 from tri_loop_dev.schemas.prd import PRDSchema
 from tri_loop_dev.state import AgentState
+from tri_loop_dev.utils.llm_factory import get_llm
 
 
 def pm_agent_node(state: AgentState):
@@ -9,7 +8,8 @@ def pm_agent_node(state: AgentState):
     The PM Agent: Responsible for requirements gathering and PRD creation.
     If requirements are incomplete, it requests clarification.
     """
-    llm = ChatAnthropic(model="claude-3-haiku-20240307", temperature=0)
+    print("--- RUNNING PM AGENT ---")
+    llm = get_llm()
 
     # Bind the Pydantic schema to the LLM so it MUST output JSON
     structured_llm = llm.with_structured_output(PRDSchema)

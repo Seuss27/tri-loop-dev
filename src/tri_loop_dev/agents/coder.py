@@ -1,29 +1,31 @@
-from langchain_core.messages import AIMessage
-
+from tri_loop_dev.config import settings
 from tri_loop_dev.state import AgentState
+from tri_loop_dev.utils.llm_factory import get_llm
 
 
 def coder_node(state: AgentState) -> dict:
-    """Mock Coder node to validate code generation and state updates."""
-    print("--- RUNNING CODER NODE (MOCK) ---")
+    """The Coder Agent: Executes the architectural design step-by-step."""
+    print("--- RUNNING CODER AGENT ---")
 
-    # Simulate writing the code defined in the mock architecture
-    mock_code = {
-        "src/string_utils.py": (
-            "def reverse_string(s: str) -> str:\n"
-            "    return s[::-1]"
-        ),
-        "src/main.py": (
-            "from string_utils import reverse_string\n\n"
-            "if __name__ == '__main__':\n"
-            "    print(reverse_string('MVP Test'))"
-        )
-    }
+    # Request the complex reasoning model via the factory
+    llm = get_llm(model=settings.coder_model)
 
-    success_msg = "Code generation complete."
+    # In a full implementation, the coder reads the architecture schema
+    arch_context = state.get("architecture_schema")
 
-    # Return ONLY the state properties this node is responsible for updating
-    return {
-        "code_artifacts": mock_code,
-        "messages": [AIMessage(content=success_msg)]
-    }
+    prompt = f"""
+    You are an expert ML Developer. Write the implementation code
+    strictly following this architecture: {arch_context}
+
+    Return the output as a dictionary where keys are filepaths and
+    values are the raw code strings.
+    """
+
+    # Note: You may want to bind a Pydantic schema here as well
+    # to enforce the dictionary output structure reliably.
+    # For now, we invoke raw text generation.
+    code_output = llm.invoke(prompt)
+
+    # Parse the output into the expected state dictionary
+    # (Assuming the LLM outputs valid code formatting)
+    return {"code_artifacts": {"generated_code.py": code_output.content}}
