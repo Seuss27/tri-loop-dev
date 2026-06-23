@@ -1,31 +1,47 @@
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.prompts import PromptTemplate
+
 from tri_loop_dev.schemas.prd import PRDSchema
 from tri_loop_dev.state import AgentState
 from tri_loop_dev.utils.llm_factory import get_llm
 
 
-def pm_agent_node(state: AgentState):
-    """
-    The PM Agent: Responsible for requirements gathering and PRD creation.
-    If requirements are incomplete, it requests clarification.
-    """
+def pm_agent_node(state: AgentState) -> dict:
+    """The PM Agent: Responsible for requirements gathering and PRD."""
     print("--- RUNNING PM AGENT ---")
+
     llm = get_llm()
 
-    # Bind the Pydantic schema to the LLM so it MUST output JSON
-    structured_llm = llm.with_structured_output(PRDSchema)
+    # 1. Initialize the universal parser
+    parser = PydanticOutputParser(pydantic_object=PRDSchema)
 
-    prompt = f"""
-    You are an expert Product Manager. Your goal is to create a detailed PRD for
-    the user's request.
+    # 2. Inject the format instructions directly into the prompt
+    prompt_template = """
+    You are an expert Product Manager. Your goal is to create a detailed PRD.
 
-    Current request: {state['messages'][-1].content}
+    Current request: {request}
 
-    If the request is missing infrastructure details or clear success criteria,
-    do not guess. Instead, populate the 'unresolved_questions' field and keep
-    other fields as empty strings or placeholders.
+    If the request is missing details, populate 'unresolved_questions'
+    and keep other fields empty.
+
+    {format_instructions}
     """
 
-    prd_output = structured_llm.invoke(prompt)
+    prompt = PromptTemplate(
+        template=prompt_template,
+        input_variables=["request"],
+        partial_variables={
+            "format_instructions": parser.get_format_instructions()
+        },
+    )
 
-    # Return the update for the AgentState
-    return {"prd_json": prd_output}
+    # 3. Chain the prompt, raw LLM, and parser together
+    chain = prompt | llm | parser
+
+    try:
+        # The chain outputs the validated Pydantic object directly
+        prd_output = chain.invoke({"request": state["messages"][-1].content})
+        return {"prd_json": prd_output, "current_error": None}
+    except Exception as e:
+        print(f"[PM Agent Error] Failed to parse output: {e}")
+        return {"prd_json": None, "current_error": str(e)}
