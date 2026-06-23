@@ -18,6 +18,10 @@ env:
   ECS_TASK_DEFINITION: .github/workflows/task-def.json # Exported from Tofu/Terraform
   CONTAINER_NAME: tri-loop-backend
 
+permissions:
+  id-token: write   # This is the line that fixes your warning. It allows GitHub to request the OIDC token.
+  contents: read    # This is required for actions/checkout to read your repo code.
+
 jobs:
   build-and-deploy:
     name: Build, Push, and Deploy
