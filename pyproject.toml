@@ -13,7 +13,7 @@ authors = [
 ]
 # Core dependencies REQUIRED for the app to run
 dependencies = [
-    "langgraph>=0.0.26",
+    "langgraph>=0.2.0",
     "langchain-core>=0.1.52",
     "pydantic>=2.7.0",
     "pydantic-settings>=2.2.1", # Moved to core to prevent startup crashes
@@ -40,8 +40,9 @@ Homepage = "https://github.com/Seuss27/tri-loop-dev"
 
 # Default environment for development and testing
 # Automatically install all optional dependencies in the default environment
-features = ["all"]
+
 [tool.hatch.envs.default]
+features = ["all"]
 dependencies = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.6",

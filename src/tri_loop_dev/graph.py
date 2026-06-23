@@ -6,42 +6,41 @@ from tri_loop_dev.agents.coder import coder_node
 from tri_loop_dev.agents.pm_agent import pm_agent_node
 from tri_loop_dev.state import AgentState
 
+# Define strict node names to prevent HITL mismatches
+NODE_PM = "pm_agent"
+NODE_ARCHITECT = "architect"
+NODE_CODER = "coder"
+
 
 def build_workflow():
     workflow = StateGraph(AgentState)
 
-    workflow.add_node("pm_agent", pm_agent_node)
-    workflow.add_node("architect", architect_node)
-    workflow.add_node("coder", coder_node)
+    workflow.add_node(NODE_PM, pm_agent_node)
+    workflow.add_node(NODE_ARCHITECT, architect_node)
+    workflow.add_node(NODE_CODER, coder_node)
 
-    workflow.set_entry_point("pm_agent")
+    workflow.set_entry_point(NODE_PM)
 
     def pm_routing_logic(state: AgentState) -> str:
         if state.get("prd_json"):
-            return "architect"
+            return NODE_ARCHITECT
         return END
 
-    # --- NEW: Architect Guardrail Routing ---
     def architect_routing_logic(state: AgentState) -> str:
         """Ensure the architecture schema exists before coding."""
         if not state.get("architecture_schema"):
-            # In a V2, you would route back to 'architect' here
-            # with an error message injected into the state.
             print("\n[ERROR] Architect failed to produce valid schema. Halting.")
             return END
-        return "coder"
+        return NODE_CODER
 
-    workflow.add_conditional_edges("pm_agent", pm_routing_logic)
-
-    # Replace the linear edge with the conditional gatekeeper
-    workflow.add_conditional_edges("architect", architect_routing_logic)
-
-    workflow.add_edge("coder", END)
+    workflow.add_conditional_edges(NODE_PM, pm_routing_logic)
+    workflow.add_conditional_edges(NODE_ARCHITECT, architect_routing_logic)
+    workflow.add_edge(NODE_CODER, END)
 
     memory = MemorySaver()
     return workflow.compile(
         checkpointer=memory,
-        interrupt_before=["architect"]
+        interrupt_before=[NODE_ARCHITECT]  # Strongly typed reference
     )
 
 app = build_workflow()

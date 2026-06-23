@@ -1,4 +1,5 @@
 from langchain_core.messages import HumanMessage
+from langgraph.types import Command  # Required for modern resumption
 
 from tri_loop_dev.graph import app
 
@@ -6,10 +7,8 @@ from tri_loop_dev.graph import app
 def run_local_test() -> None:
     print("--- Starting Tri-Loop MVP Test ---")
 
-    # Define the thread for memory persistence
     config = {"configurable": {"thread_id": "test_mvp_001"}}
 
-    # Initialize state with a sample user request
     initial_state = {
         "messages": [
             HumanMessage(
@@ -23,22 +22,23 @@ def run_local_test() -> None:
         for node_name, _state_update in event.items():
             print(f"Node Executed: {node_name}")
 
-    # The graph is paused here due to interrupt_before=["architect"]
     print("\n--- Workflow Paused for HITL (Human-in-the-Loop) ---")
     current_state = app.get_state(config)
 
     print("\nValidated PRD Payload:")
     if current_state.values.get("prd_json"):
-        # Access the Pydantic model directly to print it
         prd = current_state.values["prd_json"]
         print(prd.model_dump_json(indent=2))
 
-    # Wait for the user to simulate an approval
     input("\nPress Enter to approve PRD and route to Architect -> Coder...")
 
     print("\n--- Resuming Workflow ---")
-    # Streaming with None state resumes the graph from the breakpoint
-    for event in app.stream(None, config):
+
+    # 1. Manually update the state to record the human approval
+    app.update_state(config, {"is_approved": True})
+
+    # 2. Resume using the explicit Command protocol
+    for event in app.stream(Command(resume=True), config):
         for node_name, _state_update in event.items():
             print(f"Node Executed: {node_name}")
 
