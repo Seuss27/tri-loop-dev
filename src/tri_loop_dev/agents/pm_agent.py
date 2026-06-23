@@ -1,6 +1,7 @@
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import PromptTemplate
 
+from tri_loop_dev.config import settings
 from tri_loop_dev.schemas.prd import PRDSchema
 from tri_loop_dev.state import AgentState
 from tri_loop_dev.utils.llm_factory import get_llm
@@ -10,7 +11,7 @@ def pm_agent_node(state: AgentState) -> dict:
     """The PM Agent: Responsible for requirements gathering and PRD."""
     print("--- RUNNING PM AGENT ---")
 
-    llm = get_llm()
+    llm = get_llm(model=settings.pm_model)
 
     # 1. Initialize the universal parser
     parser = PydanticOutputParser(pydantic_object=PRDSchema)

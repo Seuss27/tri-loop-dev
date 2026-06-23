@@ -11,7 +11,10 @@ def get_llm(
     """Factory to instantiate and return the requested LLM provider."""
 
     prov = provider or settings.primary_llm_provider
-    mod = model or settings.primary_llm_model
+
+    # FIX: Updated fallback from primary_llm_model to pm_model
+    mod = model or settings.pm_model
+
     temp = (
         temperature if temperature is not None
         else settings.llm_temperature
