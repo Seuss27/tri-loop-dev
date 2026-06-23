@@ -8,7 +8,7 @@ def pm_agent_node(state: AgentState):
     The PM Agent: Responsible for requirements gathering and PRD creation.
     If requirements are incomplete, it requests clarification.
     """
-    llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
+    llm = ChatAnthropic(model="claude-3-haiku-20240307", temperature=0)
 
     # Bind the Pydantic schema to the LLM so it MUST output JSON
     structured_llm = llm.with_structured_output(PRDSchema)

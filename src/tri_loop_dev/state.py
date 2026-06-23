@@ -3,9 +3,10 @@ from typing import Annotated, List, Optional, TypedDict
 
 from langchain_core.messages import BaseMessage
 
-# Import our Pydantic schemas (we will build these next)
+from tri_loop_dev.schemas.architect import ArchitectureSchema
+
+# Import our Pydantic schemas
 from tri_loop_dev.schemas.prd import PRDSchema
-from tri_loop_dev.schemas.system import SystemArchitectureSchema
 
 
 class AgentState(TypedDict):
@@ -19,7 +20,9 @@ class AgentState(TypedDict):
 
     # Validated artifacts passed between personas
     prd_json: Optional[PRDSchema]
-    architecture_schema: Optional[SystemArchitectureSchema]
+
+    # Updated to use the strict ArchitectureSchema
+    architecture_schema: Optional[ArchitectureSchema]
 
     # Execution artifacts
     code_artifacts: Optional[dict]
