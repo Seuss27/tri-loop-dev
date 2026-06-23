@@ -9,7 +9,7 @@ from tri_loop_dev.utils.llm_factory import get_llm
 
 def coder_node(state: AgentState) -> dict:
     """The Coder Agent: Executes the architectural design step-by-step."""
-    print("--- RUNNING CODER AGENT ---")
+    print(f"--- RUNNING CODER AGENT (Model: {settings.coder_model})---")
 
     llm = get_llm(model=settings.coder_model)
 

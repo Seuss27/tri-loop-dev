@@ -9,7 +9,7 @@ from tri_loop_dev.utils.llm_factory import get_llm
 
 def pm_agent_node(state: AgentState) -> dict:
     """The PM Agent: Responsible for requirements gathering and PRD."""
-    print("--- RUNNING PM AGENT ---")
+    print(f"--- RUNNING PM AGENT (Model: {settings.pm_model})---")
 
     llm = get_llm(model=settings.pm_model)
 

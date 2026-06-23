@@ -18,7 +18,9 @@ def run_local_test() -> None:
     }
 
     print("\n--- Running PM Agent ---")
-    for event in app.stream(initial_state, config):
+    for event in app.stream(initial_state,
+                            config,
+                            stream_mode="updates"):
         for node_name, _state_update in event.items():
             # Check for error state immediately
             if _state_update.get("current_error"):
@@ -42,7 +44,9 @@ def run_local_test() -> None:
     app.update_state(config, {"is_approved": True})
 
     # 2. Resume using the explicit Command protocol
-    for event in app.stream(Command(resume=True), config):
+    for event in app.stream(Command(resume=True),
+                            config,
+                            stream_mode="updates"):
         for node_name, _state_update in event.items():
             print(f"Node Executed: {node_name}")
 

@@ -9,7 +9,7 @@ from tri_loop_dev.utils.llm_factory import get_llm
 
 def architect_node(state: AgentState) -> dict:
     """The Architect Agent: Designs the system based on the PRD."""
-    print("--- RUNNING ARCHITECT AGENT ---")
+    print(f"--- RUNNING ARCHITECT AGENT (Model: {settings.architect_model})---")
 
     # Request the complex reasoning model via the factory
     llm = get_llm(model=settings.architect_model)
