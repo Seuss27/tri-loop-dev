@@ -20,6 +20,10 @@ def run_local_test() -> None:
     print("\n--- Running PM Agent ---")
     for event in app.stream(initial_state, config):
         for node_name, _state_update in event.items():
+            # Check for error state immediately
+            if _state_update.get("current_error"):
+                print(f"[CRITICAL] PM Agent failed: {_state_update['current_error']}")
+                return  # Stop the script immediately to prevent further calls
             print(f"Node Executed: {node_name}")
 
     print("\n--- Workflow Paused for HITL (Human-in-the-Loop) ---")

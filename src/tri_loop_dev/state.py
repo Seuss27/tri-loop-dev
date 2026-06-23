@@ -32,3 +32,6 @@ class AgentState(TypedDict):
 
     # Metadata for cost/step management
     is_approved: bool  # Used by the Human-in-the-Loop (HITL) checkpoint
+
+    # Retry count for self-correction loop
+    retry_count: int = 0
